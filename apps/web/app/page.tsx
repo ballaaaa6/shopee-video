@@ -88,7 +88,7 @@ export default function Home() {
   const handleScreenClick = async (event: React.MouseEvent<HTMLDivElement>) => {
     const bounds = event.currentTarget.getBoundingClientRect();
     const x = Math.round(((event.clientX - bounds.left) / bounds.width) * 720);
-    const y = Math.round(((event.clientY - bounds.top) / bounds.height) * 1600);
+    const y = Math.round(((event.clientY - bounds.top) / bounds.height) * 1280);
     setLastTap({ x, y });
     setNotice(`แตะตำแหน่ง ${x}, ${y}`);
     await sendCommand("/api/input/tap", { x, y });
@@ -146,11 +146,11 @@ export default function Home() {
           <div className="device-card">
             <div className="device-meta">
               <span>Android 12 · ARM64</span>
-              <span>720 × 1600 · 15 FPS</span>
+              <span>720 × 1280 · 15 FPS</span>
             </div>
             <div className="resource-row">
-              <Resource label="CPU" value="1.5 core" fill={46} />
-              <Resource label="RAM" value="3 GB" fill={38} />
+              <Resource label="CPU" value="0.5 core" fill={25} />
+              <Resource label="RAM" value="2 GB" fill={30} />
               <Resource label="Disk" value="24 GB" fill={28} />
             </div>
           </div>
@@ -199,7 +199,7 @@ export default function Home() {
                     className="tap-marker"
                     style={{
                       left: `${(lastTap.x / 720) * 100}%`,
-                      top: `${(lastTap.y / 1600) * 100}%`,
+                      top: `${(lastTap.y / 1280) * 100}%`,
                     }}
                     aria-hidden="true"
                   />
@@ -320,4 +320,3 @@ function DemoPhoneScreen() {
     </div>
   );
 }
-

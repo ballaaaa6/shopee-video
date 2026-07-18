@@ -120,7 +120,7 @@ const server = http.createServer(async (req, res) => {
       const body = await readJson(req);
       const x = Number(body.x);
       const y = Number(body.y);
-      if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || x > 720 || y < 0 || y > 1600) {
+      if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || x > 720 || y < 0 || y > 1280) {
         sendJson(res, 400, { ok: false, error: "Invalid coordinates" });
         return;
       }
