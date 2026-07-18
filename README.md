@@ -8,6 +8,9 @@
 - `apps/gateway` — API บน Oracle ที่รับภาพหน้าจอและส่งคำสั่ง ADB
 - `infra/oracle` — ไฟล์ติดตั้ง service บน Ubuntu
 
+Android ตัวทดลองใช้ ReDroid Android 12 แบบ ARM64-only ที่ 720×1600, 15 FPS,
+RAM สูงสุด 3 GB และ CPU สูงสุด 1.5 คอร์ โดย ADB ถูกผูกไว้กับ localhost เท่านั้น
+
 ## เปิดหน้าเว็บในเครื่อง
 
 ```powershell
@@ -28,6 +31,16 @@ NEXT_PUBLIC_GATEWAY_URL=https://android-api.example.com
 
 ห้ามเปิด ADB หรือ gateway port สู่ public internet โดยตรง ระบบจริงควรเข้าผ่าน Cloudflare Tunnel และล็อกด้วย Cloudflare Access
 
+## เริ่ม Android บน Oracle
+
+หลังติดตั้ง Docker, ADB และ `linux-modules-extra-$(uname -r)` แล้ว:
+
+```bash
+sudo modprobe binder_linux devices=binder,hwbinder,vndbinder
+bash infra/oracle/run-redroid.sh
+adb connect 127.0.0.1:5555
+```
+
 ## ตรวจโค้ด
 
 ```powershell
@@ -38,4 +51,3 @@ npx vinext build
 cd "..\gateway"
 npm run check
 ```
-
