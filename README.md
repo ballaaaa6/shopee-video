@@ -51,3 +51,20 @@ npx vinext build
 cd "..\gateway"
 npm run check
 ```
+
+## การยกช่องกรอกเหนือคีย์บอร์ด Android
+
+Oracle เครื่องปัจจุบันใช้ Frida Server 17.16.0 แบบ ARM64 และ
+`pocketdock-soft-input.service` เพื่อบังคับ Aurora Store กับ Shopee ให้ใช้
+`SOFT_INPUT_ADJUST_RESIZE` ขณะคีย์บอร์ดเปิด ไฟล์ service และตัวเฝ้ากระบวนการอยู่ที่
+`infra/oracle/` ติดตั้งซ้ำได้จาก root ของ repository ด้วย:
+
+```bash
+bash infra/oracle/install-soft-input.sh
+```
+
+หลังติดตั้งบนเซิร์ฟเวอร์แล้วตรวจสถานะด้วย:
+
+```bash
+sudo systemctl status pocketdock-soft-input.service
+```

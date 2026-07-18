@@ -1,0 +1,13 @@
+[Unit]
+Description=Keep Android text fields above the soft keyboard
+After=docker.service pocketdock-binder.service
+Wants=pocketdock-binder.service
+
+[Service]
+Type=simple
+ExecStart=/opt/pocketdock/frida/venv/bin/python /opt/pocketdock/frida/keep-android-soft-input.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

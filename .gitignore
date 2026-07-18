@@ -25,6 +25,8 @@ dist/
 .wrangler/
 .wrangler-dry-run/
 *.log
+__pycache__/
+*.pyc
 
 # Editor and operating system files
 .DS_Store
