@@ -1,0 +1,33 @@
+# Secrets and local credentials
+*.key
+*.pem
+*.ppk
+.env
+.env.*
+!.env.example
+
+# Local connection notes contain the current server address
+/ORACLE_UBUNTU_SSH_GUIDE.md
+
+# Video and upload payloads
+*.mp4
+*.mov
+*.mkv
+*.avi
+*.webm
+/uploads/
+
+# JavaScript build output
+node_modules/
+.next/
+dist/
+.wrangler/
+.wrangler-dry-run/
+*.log
+
+# Editor and operating system files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+**/.starter-git-backup/
