@@ -27,6 +27,9 @@ export default function Home() {
   const screenRef = useRef<HTMLDivElement>(null);
   const textInputRef = useRef<HTMLTextAreaElement>(null);
   const typingDockRef = useRef<HTMLFormElement>(null);
+  const wheelDeltaRef = useRef(0);
+  const wheelTimerRef = useRef<number | null>(null);
+  const swipeInFlightRef = useRef(false);
 
   const screenUrl = useMemo(
     () => (GATEWAY_URL ? `${GATEWAY_URL}/api/screen?v=${screenVersion}` : ""),
@@ -118,6 +121,12 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => () => {
+    if (wheelTimerRef.current !== null) {
+      window.clearTimeout(wheelTimerRef.current);
+    }
+  }, []);
+
   const handleScreenClick = async (event: React.MouseEvent<HTMLDivElement>) => {
     const bounds = event.currentTarget.getBoundingClientRect();
     const x = Math.round(((event.clientX - bounds.left) / bounds.width) * 720);
@@ -125,6 +134,36 @@ export default function Home() {
     setLastTap({ x, y });
     setNotice(`แตะตำแหน่ง ${x}, ${y}`);
     await sendCommand("/api/input/tap", { x, y });
+  };
+
+  const handleScreenWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    wheelDeltaRef.current += event.deltaY;
+
+    if (wheelTimerRef.current !== null) {
+      window.clearTimeout(wheelTimerRef.current);
+    }
+
+    wheelTimerRef.current = window.setTimeout(async () => {
+      const delta = wheelDeltaRef.current;
+      wheelDeltaRef.current = 0;
+      wheelTimerRef.current = null;
+      if (Math.abs(delta) < 8 || swipeInFlightRef.current) return;
+
+      swipeInFlightRef.current = true;
+      const scrollDown = delta > 0;
+      setNotice(scrollDown ? "เลื่อนหน้าจอลง" : "เลื่อนหน้าจอขึ้น");
+      await sendCommand("/api/input/swipe", {
+        x1: 360,
+        y1: scrollDown ? 930 : 350,
+        x2: 360,
+        y2: scrollDown ? 350 : 930,
+        duration: 280,
+      });
+      window.setTimeout(() => setScreenVersion((version) => version + 1), 350);
+      swipeInFlightRef.current = false;
+    }, 70);
   };
 
   const handleKey = async (key: string) => {
@@ -211,8 +250,10 @@ export default function Home() {
                 className="phone-screen"
                 ref={screenRef}
                 onClick={handleScreenClick}
+                onWheel={handleScreenWheel}
                 role="application"
-                aria-label="คลิกเพื่อควบคุมหน้าจอ Android"
+                aria-label="คลิกเพื่อควบคุม และใช้ล้อเมาส์เลื่อนหน้าจอ Android"
+                title="ใช้ล้อเมาส์เลื่อนขึ้นหรือลง"
                 data-testid="phone-screen"
               >
                 {GATEWAY_URL ? (
@@ -250,6 +291,7 @@ export default function Home() {
                   </button>
                 ))}
               </div>
+              <p className="scroll-help">↕ ชี้บนจอแล้วหมุนล้อเมาส์เพื่อเลื่อน</p>
             </div>
 
             <form

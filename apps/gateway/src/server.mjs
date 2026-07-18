@@ -129,6 +129,33 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "POST" && url.pathname === "/api/input/swipe") {
+      const body = await readJson(req);
+      const values = [body.x1, body.y1, body.x2, body.y2, body.duration].map(Number);
+      const [x1, y1, x2, y2, duration] = values;
+      const coordinatesValid = values.slice(0, 4).every(Number.isInteger)
+        && x1 >= 0 && x1 <= 720
+        && x2 >= 0 && x2 <= 720
+        && y1 >= 0 && y1 <= 1280
+        && y2 >= 0 && y2 <= 1280;
+      if (!coordinatesValid || !Number.isInteger(duration) || duration < 100 || duration > 1_000) {
+        sendJson(res, 400, { ok: false, error: "Invalid swipe" });
+        return;
+      }
+      await runAdb([
+        "shell",
+        "input",
+        "swipe",
+        String(x1),
+        String(y1),
+        String(x2),
+        String(y2),
+        String(duration),
+      ]);
+      sendJson(res, 200, { ok: true, x1, y1, x2, y2, duration });
+      return;
+    }
+
     if (req.method === "POST" && url.pathname === "/api/input/key") {
       const body = await readJson(req);
       const allowedKeys = new Set(["BACK", "HOME", "APP_SWITCH", "POWER"]);

@@ -341,6 +341,7 @@ button {
   background: #f5f5f5;
   user-select: none;
   cursor: crosshair;
+  overscroll-behavior: contain;
 }
 
 .live-screen {
@@ -379,6 +380,13 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.scroll-help {
+  margin: 4px 0 0;
+  color: #8f99ac;
+  font-size: 9px;
+  text-align: center;
 }
 
 .device-controls button {
