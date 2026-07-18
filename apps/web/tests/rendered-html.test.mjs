@@ -33,6 +33,6 @@ test("server-renders the PocketDock dashboard", async () => {
   assert.match(html, /Android สำหรับอัปโหลด/);
   assert.match(html, /ส่งคำสั่ง/);
   assert.match(html, /พิมพ์เข้าเครื่องนี้/);
-  assert.match(html, /หมุนล้อเมาส์เพื่อเลื่อน/);
+  assert.match(html, /หมุนล้อเมาส์ หรือลากบนจอเพื่อเลื่อน/);
   assert.doesNotMatch(html, /Your site is taking shape|codex-preview/i);
 });

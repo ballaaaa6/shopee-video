@@ -29,7 +29,10 @@ export default function Home() {
   const typingDockRef = useRef<HTMLFormElement>(null);
   const wheelDeltaRef = useRef(0);
   const wheelTimerRef = useRef<number | null>(null);
+  const wheelPointRef = useRef({ x: 360, y: 640 });
   const swipeInFlightRef = useRef(false);
+  const pointerStartRef = useRef<{ x: number; y: number; pointerId: number } | null>(null);
+  const suppressNextClickRef = useRef(false);
 
   const screenUrl = useMemo(
     () => (GATEWAY_URL ? `${GATEWAY_URL}/api/screen?v=${screenVersion}` : ""),
@@ -127,18 +130,58 @@ export default function Home() {
     }
   }, []);
 
+  const refreshScreenBurst = () => {
+    [180, 500, 950].forEach((delay) => {
+      window.setTimeout(
+        () => setScreenVersion((version) => version + 1),
+        delay,
+      );
+    });
+  };
+
   const handleScreenClick = async (event: React.MouseEvent<HTMLDivElement>) => {
+    if (suppressNextClickRef.current) {
+      suppressNextClickRef.current = false;
+      return;
+    }
     const bounds = event.currentTarget.getBoundingClientRect();
     const x = Math.round(((event.clientX - bounds.left) / bounds.width) * 720);
     const y = Math.round(((event.clientY - bounds.top) / bounds.height) * 1280);
     setLastTap({ x, y });
     setNotice(`แตะตำแหน่ง ${x}, ${y}`);
     await sendCommand("/api/input/tap", { x, y });
+    refreshScreenBurst();
+  };
+
+  const sendScreenSwipe = async (
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    label: string,
+  ) => {
+    if (swipeInFlightRef.current) return;
+    swipeInFlightRef.current = true;
+    setNotice(label);
+    await sendCommand("/api/input/swipe", {
+      x1: Math.round(Math.max(0, Math.min(720, x1))),
+      y1: Math.round(Math.max(0, Math.min(1280, y1))),
+      x2: Math.round(Math.max(0, Math.min(720, x2))),
+      y2: Math.round(Math.max(0, Math.min(1280, y2))),
+      duration: 280,
+    });
+    refreshScreenBurst();
+    swipeInFlightRef.current = false;
   };
 
   const handleScreenWheel = (event: React.WheelEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
+    const bounds = event.currentTarget.getBoundingClientRect();
+    wheelPointRef.current = {
+      x: ((event.clientX - bounds.left) / bounds.width) * 720,
+      y: ((event.clientY - bounds.top) / bounds.height) * 1280,
+    };
     wheelDeltaRef.current += event.deltaY;
 
     if (wheelTimerRef.current !== null) {
@@ -151,19 +194,49 @@ export default function Home() {
       wheelTimerRef.current = null;
       if (Math.abs(delta) < 8 || swipeInFlightRef.current) return;
 
-      swipeInFlightRef.current = true;
       const scrollDown = delta > 0;
-      setNotice(scrollDown ? "เลื่อนหน้าจอลง" : "เลื่อนหน้าจอขึ้น");
-      await sendCommand("/api/input/swipe", {
-        x1: 360,
-        y1: scrollDown ? 930 : 350,
-        x2: 360,
-        y2: scrollDown ? 350 : 930,
-        duration: 280,
-      });
-      window.setTimeout(() => setScreenVersion((version) => version + 1), 350);
-      swipeInFlightRef.current = false;
+      const { x, y } = wheelPointRef.current;
+      const distance = Math.max(280, Math.min(520, Math.abs(delta) * 1.4));
+      await sendScreenSwipe(
+        x,
+        y + (scrollDown ? distance / 2 : -distance / 2),
+        x,
+        y + (scrollDown ? -distance / 2 : distance / 2),
+        scrollDown ? "เลื่อนหน้าจอลง" : "เลื่อนหน้าจอขึ้น",
+      );
     }, 70);
+  };
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    pointerStartRef.current = {
+      x: ((event.clientX - bounds.left) / bounds.width) * 720,
+      y: ((event.clientY - bounds.top) / bounds.height) * 1280,
+      pointerId: event.pointerId,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    const start = pointerStartRef.current;
+    pointerStartRef.current = null;
+    if (!start || start.pointerId !== event.pointerId) return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const end = {
+      x: ((event.clientX - bounds.left) / bounds.width) * 720,
+      y: ((event.clientY - bounds.top) / bounds.height) * 1280,
+    };
+    const distance = Math.hypot(end.x - start.x, end.y - start.y);
+    if (distance < 35) return;
+    suppressNextClickRef.current = true;
+    void sendScreenSwipe(
+      start.x,
+      start.y,
+      end.x,
+      end.y,
+      end.y < start.y ? "ลากหน้าจอขึ้น" : "ลากหน้าจอลง",
+    );
   };
 
   const handleKey = async (key: string) => {
@@ -251,6 +324,9 @@ export default function Home() {
                 ref={screenRef}
                 onClick={handleScreenClick}
                 onWheel={handleScreenWheel}
+                onPointerDown={handlePointerDown}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={() => { pointerStartRef.current = null; }}
                 role="application"
                 aria-label="คลิกเพื่อควบคุม และใช้ล้อเมาส์เลื่อนหน้าจอ Android"
                 title="ใช้ล้อเมาส์เลื่อนขึ้นหรือลง"
@@ -291,7 +367,7 @@ export default function Home() {
                   </button>
                 ))}
               </div>
-              <p className="scroll-help">↕ ชี้บนจอแล้วหมุนล้อเมาส์เพื่อเลื่อน</p>
+              <p className="scroll-help">↕ หมุนล้อเมาส์ หรือลากบนจอเพื่อเลื่อน</p>
             </div>
 
             <form
