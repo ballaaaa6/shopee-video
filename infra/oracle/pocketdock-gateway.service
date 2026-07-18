@@ -9,7 +9,8 @@ User=ubuntu
 Group=ubuntu
 WorkingDirectory=/opt/pocketdock/gateway
 EnvironmentFile=/etc/pocketdock/gateway.env
-ExecStart=/usr/bin/node /opt/pocketdock/gateway/src/server.mjs
+Environment=HOME=/tmp
+ExecStart=/usr/local/bin/node /opt/pocketdock/gateway/src/server.mjs
 Restart=on-failure
 RestartSec=3
 NoNewPrivileges=true
@@ -19,4 +20,3 @@ ProtectHome=true
 
 [Install]
 WantedBy=multi-user.target
-
