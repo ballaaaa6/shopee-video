@@ -1,0 +1,18 @@
+[Unit]
+Description=Prepare Android Binder devices for PocketDock
+DefaultDependencies=no
+After=systemd-modules-load.service
+Before=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/modprobe binder_linux devices=binder,hwbinder,vndbinder
+ExecStart=/usr/bin/mkdir -p /dev/binderfs
+ExecStart=-/usr/bin/mount -t binder none /dev/binderfs
+ExecStart=/usr/bin/ln -sfn /dev/binderfs/binder /dev/binder
+ExecStart=/usr/bin/ln -sfn /dev/binderfs/hwbinder /dev/hwbinder
+ExecStart=/usr/bin/ln -sfn /dev/binderfs/vndbinder /dev/vndbinder
+
+[Install]
+WantedBy=multi-user.target
