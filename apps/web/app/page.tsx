@@ -149,7 +149,7 @@ export default function Home() {
               <span>720 × 1280 · 15 FPS</span>
             </div>
             <div className="resource-row">
-              <Resource label="CPU" value="0.5 core" fill={25} />
+              <Resource label="CPU" value="1 core" fill={50} />
               <Resource label="RAM" value="2 GB" fill={30} />
               <Resource label="Disk" value="24 GB" fill={28} />
             </div>

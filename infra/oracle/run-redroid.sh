@@ -26,7 +26,7 @@ sudo docker run -d \
   --privileged \
   --pull always \
   --memory 2g \
-  --cpus 0.5 \
+  --cpus 1 \
   --cpuset-cpus 1 \
   --pids-limit 2048 \
   -v "${DATA_DIR}:/data" \
