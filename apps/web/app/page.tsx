@@ -76,7 +76,7 @@ export default function Home() {
     const healthTimer = window.setInterval(checkHealth, 10_000);
     const screenTimer = window.setInterval(
       () => setScreenVersion((version) => version + 1),
-      1_200,
+      3_000,
     );
 
     return () => {
