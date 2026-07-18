@@ -25,6 +25,8 @@ export default function Home() {
       : "โหมดตัวอย่าง — รอเชื่อม Android บน Oracle",
   );
   const screenRef = useRef<HTMLDivElement>(null);
+  const textInputRef = useRef<HTMLTextAreaElement>(null);
+  const typingDockRef = useRef<HTMLFormElement>(null);
 
   const screenUrl = useMemo(
     () => (GATEWAY_URL ? `${GATEWAY_URL}/api/screen?v=${screenVersion}` : ""),
@@ -82,6 +84,37 @@ export default function Home() {
     return () => {
       window.clearInterval(healthTimer);
       window.clearInterval(screenTimer);
+    };
+  }, []);
+
+  useEffect(() => {
+    document
+      .querySelector('meta[name="viewport"]')
+      ?.setAttribute(
+        "content",
+        "width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content",
+      );
+  }, []);
+
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+
+    const keepTypingVisible = () => {
+      if (document.activeElement !== textInputRef.current) return;
+      window.requestAnimationFrame(() => {
+        typingDockRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      });
+    };
+
+    viewport.addEventListener("resize", keepTypingVisible);
+    viewport.addEventListener("scroll", keepTypingVisible);
+    return () => {
+      viewport.removeEventListener("resize", keepTypingVisible);
+      viewport.removeEventListener("scroll", keepTypingVisible);
     };
   }, []);
 
@@ -218,6 +251,41 @@ export default function Home() {
                 ))}
               </div>
             </div>
+
+            <form
+              className="text-command typing-dock"
+              onSubmit={handleText}
+              ref={typingDockRef}
+            >
+              <div className="typing-title">
+                <span aria-hidden="true">⌨</span>
+                <div>
+                  <label htmlFor="android-text">พิมพ์เข้าเครื่องนี้</label>
+                  <p>แตะช่องในจอ Android ก่อน แล้วพิมพ์ตรงนี้</p>
+                </div>
+              </div>
+              <textarea
+                id="android-text"
+                ref={textInputRef}
+                value={commandText}
+                onChange={(event) => setCommandText(event.target.value)}
+                onFocus={() => {
+                  window.setTimeout(() => {
+                    typingDockRef.current?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "center",
+                    });
+                  }, 250);
+                }}
+                placeholder="แคปชัน หรือลิงก์สินค้า..."
+                rows={2}
+                enterKeyHint="send"
+              />
+              <button className="primary-button" type="submit">
+                ส่งข้อความ
+                <span aria-hidden="true">→</span>
+              </button>
+            </form>
           </div>
         </section>
 
@@ -228,21 +296,6 @@ export default function Home() {
               <h2>ส่งคำสั่ง</h2>
             </div>
           </div>
-
-          <form className="text-command" onSubmit={handleText}>
-            <label htmlFor="android-text">พิมพ์ข้อความเข้า Android</label>
-            <textarea
-              id="android-text"
-              value={commandText}
-              onChange={(event) => setCommandText(event.target.value)}
-              placeholder="แคปชัน หรือลิงก์สินค้า..."
-              rows={4}
-            />
-            <button className="primary-button" type="submit">
-              ส่งข้อความ
-              <span aria-hidden="true">→</span>
-            </button>
-          </form>
 
           <div className="queue-card">
             <div className="card-title-row">

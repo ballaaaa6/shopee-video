@@ -19,6 +19,7 @@
 
 html {
   background: var(--canvas);
+  scroll-padding-bottom: 45vh;
 }
 
 body {
@@ -302,13 +303,14 @@ button {
     radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.9), transparent 38%),
     #eef0f3;
   display: grid;
-  place-items: center;
+  place-items: start center;
 }
 
 .phone-wrap {
   width: min(100%, 410px);
   display: grid;
   place-items: center;
+  gap: 14px;
 }
 
 .phone-frame {
@@ -519,6 +521,42 @@ button {
   padding: 16px;
 }
 
+.typing-dock {
+  width: min(100%, 410px);
+  margin-top: 0;
+  scroll-margin-block: 24px 45vh;
+  box-shadow: 0 12px 30px rgba(19, 28, 48, 0.1);
+}
+
+.typing-title {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 10px;
+}
+
+.typing-title > span {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 17px;
+}
+
+.typing-title label {
+  margin: 0;
+}
+
+.typing-title p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+}
+
 .text-command label {
   display: block;
   margin-bottom: 9px;
@@ -646,7 +684,6 @@ button {
     grid-column: 1 / -1;
   }
 
-  .text-command,
   .queue-card {
     margin-top: 0;
   }
@@ -682,9 +719,17 @@ button {
     display: block;
   }
 
-  .text-command,
   .queue-card {
     margin-top: 16px;
+  }
+
+  .viewer-panel {
+    padding-bottom: 24px;
+  }
+
+  .typing-dock {
+    position: relative;
+    z-index: 5;
   }
 
   .connection-pill {
