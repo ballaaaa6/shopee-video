@@ -16,6 +16,7 @@
 *.avi
 *.webm
 /uploads/
+/artifacts/
 
 # JavaScript build output
 node_modules/

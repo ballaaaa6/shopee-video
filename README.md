@@ -8,8 +8,8 @@
 - `apps/gateway` — API บน Oracle ที่รับภาพหน้าจอและส่งคำสั่ง ADB
 - `infra/oracle` — ไฟล์ติดตั้ง service บน Ubuntu
 
-Android ตัวทดลองใช้ ReDroid Android 12 แบบ ARM64-only ที่ 720×1600, 15 FPS,
-RAM สูงสุด 3 GB และ CPU สูงสุด 1 คอร์ โดย ADB ถูกผูกไว้กับ localhost เท่านั้น
+Android ตัวทดลองใช้ ReDroid Android 12 แบบ ARM64-only ที่ 720×1280, 15 FPS,
+RAM สูงสุด 2 GB และ CPU สูงสุด 0.5 คอร์ โดย ADB ถูกผูกไว้กับ localhost เท่านั้น
 
 ## เปิดหน้าเว็บในเครื่อง
 

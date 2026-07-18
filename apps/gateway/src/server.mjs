@@ -20,11 +20,22 @@ function adbArgs(...args) {
 }
 
 async function runAdb(args, options = {}) {
-  return execFileAsync(adbPath, adbArgs(...args), {
+  const commandOptions = {
     timeout: 15_000,
     maxBuffer: 12 * 1024 * 1024,
     ...options,
-  });
+  };
+
+  try {
+    return await execFileAsync(adbPath, adbArgs(...args), commandOptions);
+  } catch (error) {
+    if (!adbSerial.includes(":")) throw error;
+    await execFileAsync(adbPath, ["connect", adbSerial], {
+      timeout: 10_000,
+      encoding: "utf8",
+    });
+    return execFileAsync(adbPath, adbArgs(...args), commandOptions);
+  }
 }
 
 function setCors(req, res) {
@@ -154,4 +165,3 @@ server.listen(port, host, () => {
   console.log(`PocketDock gateway listening on http://${host}:${port}`);
   console.log(`ADB device: ${adbSerial}`);
 });
-

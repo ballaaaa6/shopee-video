@@ -25,14 +25,16 @@ sudo docker run -d \
   --restart unless-stopped \
   --privileged \
   --pull always \
-  --memory 3g \
-  --cpus 1 \
+  --memory 2g \
+  --cpus 0.5 \
+  --cpuset-cpus 1 \
+  --pids-limit 2048 \
   -v "${DATA_DIR}:/data" \
   -p 127.0.0.1:5555:5555 \
   "${IMAGE}" \
   androidboot.use_memfd=true \
   androidboot.redroid_width=720 \
-  androidboot.redroid_height=1600 \
+  androidboot.redroid_height=1280 \
   androidboot.redroid_dpi=320 \
   androidboot.redroid_fps=15 \
   androidboot.redroid_gpu_mode=guest
